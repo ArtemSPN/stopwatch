@@ -2,7 +2,7 @@ import { createStore } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { createZustandStore } from '../helpers/createZustandStore'
-import { IAddStopwatchPayload, StopwatchStore } from '../types'
+import { IAddStopwatchPayload, IStopwatch, StopwatchStore } from '../types'
 
 const { useZustandStore: useStopwatchStore, StoreProvider: StopwatchProvider } =
 	createZustandStore<StopwatchStore>({
@@ -33,16 +33,32 @@ const { useZustandStore: useStopwatchStore, StoreProvider: StopwatchProvider } =
 							deleteStopwatch: (name: string) => {
 								const store = get()
 
-								if (store.selectedStopwatch === name) console.log('ebat')
-
 								set(state => ({
 									...state,
 									selectedStopwatch:
-										store.selectedStopwatch === name
+										store.selectedStopwatch?.title === name
 											? null
 											: store.selectedStopwatch,
 									stopwatches: state.stopwatches.filter(
 										stopwatch => stopwatch.title !== name
+									),
+								}))
+							},
+							setSelectedStopwatch: (stopwatch: IStopwatch) => {
+								const { stopwatches } = get()
+
+								const isSelectedValid = stopwatches.some(
+									item => item.title === stopwatch.title
+								)
+
+								if (!isSelectedValid) {
+									set({ selectedStopwatch: null })
+									return
+								}
+
+								set(state => ({
+									stopwatches: state.stopwatches.map(item =>
+										item.title === stopwatch.title ? stopwatch : item
 									),
 								}))
 							},
@@ -65,15 +81,25 @@ const { useZustandStore: useStopwatchStore, StoreProvider: StopwatchProvider } =
 									stopwatches: newStopwatches,
 								}))
 							},
-							setIsSelectedStopwatch: (name: string, time: number) =>
+							setIsSelectedStopwatch: (name: string, time: number) => {
+								const store = get()
+
+								const newSelectedStopwatch = {
+									...store.stopwatches.find(
+										stopwatch => stopwatch.title === name
+									),
+									time: time,
+								}
+
 								set(state => ({
 									...state,
-									selectedStopwatch: name,
+									selectedStopwatch: newSelectedStopwatch,
 									stopwatches: state.stopwatches.map(stopwatch => ({
 										...stopwatch,
 										time: stopwatch.title === name ? time : stopwatch.time,
 									})),
-								})),
+								}))
+							},
 						}))
 					),
 					{

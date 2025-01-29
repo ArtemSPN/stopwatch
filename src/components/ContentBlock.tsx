@@ -7,11 +7,9 @@ const ContentBlock = () => {
 		(store: StopwatchStore) => store
 	)
 
-	console.log(selectedStopwatch)
-
 	return (
-		<div className='flex flex-col justify-center items-center p-4 bg-white rounded-2xl shadow-md border border-black'>
-			{selectedStopwatch && <Stopwatch />}
+		<div className='flex flex-col justify-center items-center p-4 bg-white rounded-2xl shadow-md border border-black w-[800px]'>
+			{selectedStopwatch && <Stopwatch selectedStopwatch={selectedStopwatch} />}
 		</div>
 	)
 }

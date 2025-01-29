@@ -120,7 +120,7 @@ export const Sidebar = () => {
 				>
 					Закончить день
 				</button>
-				<div className='flex items-center justify-center w-8 h-8 text-white bg-blue-500 rounded-full hover:bg-blue-600 cursor-pointer'>
+				<div className='flex items-center justify-center w-10 h-10 text-white bg-blue-500 rounded-full hover:bg-blue-600 cursor-pointer'>
 					<AddIcon onClick={() => setIsOpenAddModal(true)} />
 				</div>
 			</div>

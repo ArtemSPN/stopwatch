@@ -1,16 +1,17 @@
-import { useEffect, useRef } from 'react'
+import { FC, useEffect } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { useStopwatchStore } from '../store/stopwatchStote'
 import { IStopwatch, StopwatchStore } from '../types'
 
-export const Stopwatch = () => {
-	const { stopwatches, selectedStopwatch } = useStopwatchStore(
-		(store: StopwatchStore) => store
-	)
-	const isInitialRender = useRef(true)
+export interface IStopwatchProps {
+	selectedStopwatch: IStopwatch
+}
 
-	const { time, isPaused, title }: IStopwatch = stopwatches.find(
-		stopwatch => stopwatch?.title === selectedStopwatch
+export const Stopwatch: FC<IStopwatchProps> = ({ selectedStopwatch }) => {
+	const { time, isPaused, title }: IStopwatch = selectedStopwatch
+
+	const { setSelectedStopwatch } = useStopwatchStore(
+		(store: StopwatchStore) => store
 	)
 
 	const initialTimestamp = new Date()
@@ -23,15 +24,20 @@ export const Stopwatch = () => {
 		})
 
 	useEffect(() => {
-		console.log(123)
-		if (isInitialRender.current) {
-			isInitialRender.current = false // Первый рендер пропускаем
-			return
-		}
-
-		if (isPaused) start()
+		console.log('isPaused', isPaused)
+		if (!isPaused) start()
 		else pause()
 	}, [isPaused])
+
+	const pauseHandler = () => {
+		pause()
+		setSelectedStopwatch({ ...selectedStopwatch, isPaused: true })
+	}
+
+	const startHandler = () => {
+		start()
+		setSelectedStopwatch({ ...selectedStopwatch, isPaused: false })
+	}
 
 	const radius = 120
 	const circumference = 2 * Math.PI * radius
@@ -41,8 +47,21 @@ export const Stopwatch = () => {
 	const isEvenMinute = minutes % 2 === 0
 	const secondCircleProgress = isEvenMinute ? progress : 1 - progress
 
+	useEffect(() => {
+		const handleBeforeUnload = () => {
+			setSelectedStopwatch({ ...selectedStopwatch, time: totalSeconds })
+		}
+
+		window.addEventListener('beforeunload', handleBeforeUnload)
+
+		// Удаляем обработчик при размонтировании
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload)
+		}
+	}, [setSelectedStopwatch, totalSeconds])
+
 	return (
-		<div className='flex flex-col items-center w-[800px]'>
+		<div className='flex flex-col items-center w-full'>
 			<h1 className='text-xl font-bold mb-4'>{title}</h1>
 
 			<div className='relative w-64 h-64'>
@@ -82,13 +101,13 @@ export const Stopwatch = () => {
 
 			<div className='mt-4 flex gap-2'>
 				<button
-					onClick={start}
+					onClick={startHandler}
 					className='px-4 py-2 bg-green-500 text-white rounded-lg shadow-md cursor-pointer'
 				>
-					Начать
+					Запустить
 				</button>
 				<button
-					onClick={pause}
+					onClick={pauseHandler}
 					className='px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md cursor-pointer'
 				>
 					Пауза

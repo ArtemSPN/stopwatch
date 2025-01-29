@@ -1,6 +1,7 @@
 export interface StopwatchStore {
-	stopwatches: Omit<IStopwatch, 'isOpen'>[]
-	selectedStopwatch: string | null
+	stopwatches: IStopwatch[]
+	selectedStopwatch: IStopwatch | null
+	setSelectedStopwatch: (name: IStopwatch) => void
 	setPaused: (name: string, isPaused: boolean) => void
 	addStopwatch: (stopwatch: IAddStopwatchPayload) => void
 	isOpenAddModal: boolean
@@ -14,15 +15,15 @@ export interface SidebarListItemProps {
 	title: string
 	time: number
 	index: number
-	isPaused: boolean
+	isPaused?: boolean
 	onDelete: (name: string) => void
 	OnPause: (name: string, time: number) => void
 	onSelect: (name: string, time: number) => void
 }
 
 export interface IStopwatch {
-	isOpen: boolean
 	isParallel?: boolean
+	isPaused?: boolean
 	title: string
 	time: number
 }
